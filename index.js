@@ -5,6 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const urlparser = require("urlparser");
 const dns = require("dns");
+const {Schema} = mongoose;
 
 // Basic Configuration
 const port = process.env.PORT || 3000;
@@ -12,19 +13,15 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 // Connect to MongoDB using Mongoose
-mongoose.connect(process.env.DB_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-const db = mongoose.connection;
+mongoose.connect(process.env.DB_URL)
 
 // Define schema for URL collection
 const UserSchema = new mongoose.Schema({
   username: String,
 });
-const User = mongoose.model("users", UserSchema);
+const User = mongoose.model("User", UserSchema);
 
-const ExerciseSchema = new mongoose.Schema({
+const ExerciseSchema = new Schema({
   user_id: { type: String, required: true },
   description: String,
   duration: Number,
@@ -118,7 +115,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
   if(from || to) {
     filter.date = dateObj;
   }
-  
+
   const exercises = await Exercise.find(filter).limit(+limit ?? 500)
 
   const log = exercises.map(e => ({
